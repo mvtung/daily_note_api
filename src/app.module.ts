@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { DailyNoteModule } from './daily-note/daily-note.module';
+import { ContentsModule } from './contents/contents.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { DailyNoteModule } from './daily-note/daily-note.module';
     }),
     UsersModule,
     DailyNoteModule,
+    ContentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

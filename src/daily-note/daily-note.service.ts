@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { DailyNote } from './daily-note.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateDailyNoteDto } from './dto/create-daily-note.dto';
@@ -11,16 +11,29 @@ export class DailyNoteService {
     private readonly dailyNoteRepository: Repository<DailyNote>,
   ) {}
 
-  create(createDailyNoteDto: CreateDailyNoteDto): Promise<DailyNote> {
+  getDailyNote(id: number): Promise<DailyNote | null> {
+    const options: FindOneOptions<DailyNote> = {
+      where: { id: id },
+    };
+    return this.dailyNoteRepository.findOne(options);
+  }
+
+  async create(createDailyNoteDto: CreateDailyNoteDto): Promise<DailyNote> {
     const dailyNote = new DailyNote();
     dailyNote.title = createDailyNoteDto.title;
-    dailyNote.content = createDailyNoteDto.content;
     dailyNote.user = createDailyNoteDto.user;
-    return this.dailyNoteRepository.save(dailyNote);
+    const saveDailyNote = await this.dailyNoteRepository.save(dailyNote);
+    return saveDailyNote;
   }
 
   async findByUserId(userId: number): Promise<DailyNote[]> {
-    return this.dailyNoteRepository.find({ where: { user: { id: userId } } });
+    const getDailyNoteByUserId = await this.dailyNoteRepository.find({
+      where: { user: { id: userId } },
+    });
+    if (!getDailyNoteByUserId.length) {
+      throw new NotFoundException(`Daily note not found`);
+    }
+    return getDailyNoteByUserId;
   }
 
   async update(
